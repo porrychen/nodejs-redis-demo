@@ -62,8 +62,12 @@ app.post('/', function(req, res, next) {
 
                 console.log("Read " + data.length + " bytes from filesystem.");
 
-                client.set(filename, data, redis.print); // set entire file
-                client.get(filename, function (err, reply) { // get entire file
+//                client.set(filename, data, redis.print); // set entire file
+                client.set(readFileName, data, function(error, result) {
+                    if (error) res.send('Error: ' + error);
+                    else res.send('Saved');
+                });
+                client.get(readFileName, function (err, reply) { // get entire file
                     if (err) {
                         console.log("Get error: " + err);
                     } else {
