@@ -57,7 +57,7 @@ app.post('/', function(req, res, next) {
 
             fs.renameSync(filepath, filename);
 
-            fs.readFile(filename, function (err, data) {
+            fs.readFile(filename, encoding='Base64', function (err, data) {
                 if (err) throw err;
 
                 console.log("Read " + data.length + " bytes from filesystem.");
@@ -71,7 +71,8 @@ app.post('/', function(req, res, next) {
                     if (err) {
                         console.log("Get error: " + err);
                     } else {
-                        fs.writeFile(readFilePath + "/duplicate_" + readFileName, reply, function (err) {
+                        console.log("Read " + reply.length + " bytes from Redis.");
+                        fs.writeFile(readFilePath + "/duplicate_" + readFileName, reply, encoding='Base64', function (err) {
                             if (err) {
                                 console.log("Error on write: " + err)
                             } else {
