@@ -13,6 +13,43 @@ var fs = require('fs'),
     readFilePath = './data',
     readFileName = 'test.gif';
 
+client.on('subscribe', function (channel, count) {
+    console.log("client subscribed to " + channel + ", " + count + " total subscriptions");
+});
+
+client.on("unsubscribe", function (channel, count) {
+    console.log("client1 unsubscribed from " + channel + ", " + count + " total subscriptions");
+    if (count === 0) {
+        client.end();
+    }
+});
+
+var msg_count = 0;
+client.on("message", function (channel, message) {
+    console.log("client channel " + channel + ": " + message);
+
+    msg_count += 1;
+
+    if (msg_count === 3) {
+        client.unsubscribe();
+    }
+});
+
+client.on('ready', function () {
+    client.subscribe('one channel', 'two channel');
+});
+
+// 在 Terminal 中 输入
+//localhost:nodejs-redis-demo porrychen$ redis-cli
+//redis 127.0.0.1:6379> publish "one channel" "hey..hey.."
+//    (integer) 1
+//redis 127.0.0.1:6379> publish "two channel" "hey..hey..two"
+//    (integer) 1
+//redis 127.0.0.1:6379> publish "two channel" "hey..hey..two..two"
+//    (integer) 1
+//redis 127.0.0.1:6379> publish "one channel" "hey..hey..one"
+//    (integer) 0
+
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -62,11 +99,11 @@ app.post('/', function(req, res, next) {
 
                 console.log("Read " + data.length + " bytes from filesystem.");
 
-//                client.set(filename, data, redis.print); // set entire file
                 client.set(readFileName, data, function(error, result) {
                     if (error) res.send('Error: ' + error);
                     else res.send('Saved');
                 });
+
                 client.get(readFileName, function (err, reply) { // get entire file
                     if (err) {
                         console.log("Get error: " + err);
